@@ -32,9 +32,18 @@ class Traffic:
         temp_im = self.traffic_image.convert('RGB')
         temp_im = np.array(temp_im)
 
-        # final_image = np.round(map_im - np.where(temp_im==0, 1, 0)+ temp_im)
-        final_image = temp_im // 3 + map_im*2 // 3
-        final_image = Image.fromarray(final_image)
+        im = Image.open("traffic_test.png")
+        image_pixels = np.array(im.convert('RGB'))
+        mask = np.where(image_pixels != [255, 255, 255], [0.3, 0.3, 0.3], [1, 1, 1])
+        mask_2 = np.where(image_pixels == [255, 255, 255], [0, 0, 0], image_pixels * 0.7)
+        # print(mask)
+
+        map_im = Image.open("static-map.png")
+        map_im = np.array(map_im.convert('RGB'))
+
+        mask = mask * map_im + mask_2
+
+        final_image = Image.fromarray(mask.astype('uint8'))
 
         temp_im = final_image.convert('RGB')
         temp_im_pixels = temp_im.load()
@@ -57,7 +66,7 @@ class Traffic:
 
 def main():
     traffic = Traffic()
-    traffic.update()
+    # traffic.update()
     shuttle = Shuttle()
     shuttle_coord = shuttle.coordinates
     traffic.plot_coord(shuttle_coord)
